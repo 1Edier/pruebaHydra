@@ -11,7 +11,7 @@ const alertData = [
 
 function AlertFrequencyGraph() {
   return (
-    <Paper sx={{ padding: 2, borderRadius: 2, boxShadow: 3 }}>
+    <Paper sx={{marginTop:'20px', padding: 2, borderRadius: 2, boxShadow: 3 }}>
       <Typography variant="h6" gutterBottom>
         Frecuencia de Alertas de pH Fuera de Rango
       </Typography>

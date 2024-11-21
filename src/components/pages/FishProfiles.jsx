@@ -1,110 +1,142 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Button, Typography, Container, Alert } from '@mui/material';
-import axios from 'axios';
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+  CardMedia,
+  IconButton,
+} from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Logo from '../../assets/pez1-removebg-preview.png';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const AddRecomendation = () => {
-  const [formData, setFormData] = useState({
-    id_especie: '',
-    frecuencia_alimentacion: '',
-    cantidad_alimento: '',
-    temperatura: '',
-    ph: '',
-  });
+const FishProfiles = () => {
+  const [fishData, setFishData] = useState([]);
 
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(null);
-
+  // Fetch all species data from the backend
   useEffect(() => {
-    const storedIdEspecie = localStorage.getItem('IdEspecie');
-    if (storedIdEspecie) {
-      setFormData((prevData) => ({ ...prevData, id_especie: storedIdEspecie }));
-    }
+    const fetchFishData = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/especies');
+        const data = await response.json();
+        setFishData(data);
+      } catch (error) {
+        console.error('Error fetching fish data:', error);
+        toast.error('Error al cargar los perfiles de peces.', { position: 'top-right' });
+      }
+    };
+
+    fetchFishData();
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleDeleteFish = async (id_especie) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este perfil de pez y sus recomendaciones?')) {
+      return;
+    }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:4000/recomendaciones', formData);
-      setSuccess(true);
-      setError(null);
-      setFormData({
-        id_especie: formData.id_especie, // Mantener el id_especie desde localStorage
-        frecuencia_alimentacion: '',
-        cantidad_alimento: '',
-        temperatura: '',
-        ph: '',
+      const response = await fetch(`http://localhost:4000/especies/${id_especie}`, {
+        method: 'DELETE',
       });
-      console.log('Response:', response.data);
-    } catch (err) {
-      setSuccess(false);
-      setError(err.response?.data?.message || 'Error al agregar la recomendación');
+
+      if (response.ok) {
+        const newFishData = fishData.filter((fish) => fish.id_especie !== id_especie);
+        setFishData(newFishData);
+        toast.success('Perfil de pez y sus recomendaciones eliminados exitosamente', {
+          position: 'top-right',
+        });
+      } else if (response.status === 404) {
+        toast.error('El perfil de pez no fue encontrado.', { position: 'top-right' });
+      } else if (response.status === 403 || response.status === 422) {
+        // Manejar el caso donde el pez está seleccionado por un usuario
+        const errorData = await response.json();
+        toast.info(
+          errorData.message || 'La especie no puede eliminarse porque está seleccionada por un usuario.',
+          { position: 'top-right' }
+        );
+      } else {
+        toast.error('La especie no puede eliminarse porque está seleccionada por un usuario.', { position: 'top-right' });
+      }
+    } catch (error) {
+      console.error('Error deleting fish:', error);
+      toast.error('Error al eliminar el perfil de pez.', { position: 'top-right' });
     }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        Agregar Recomendación
+    <Container maxWidth="md" style={{ marginTop: '2rem' }}>
+      <Typography color="secondary" variant="h6" align="center" gutterBottom>
+        Perfiles de Peces
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-        <TextField
-          fullWidth
-          label="ID Especie"
-          name="id_especie"
-          value={formData.id_especie}
-          onChange={handleChange}
-          margin="normal"
-          required
-          disabled // Deshabilitado para que no pueda ser editado por el usuario
-        />
-        <TextField
-          fullWidth
-          label="Frecuencia de Alimentación"
-          name="frecuencia_alimentacion"
-          value={formData.frecuencia_alimentacion}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Cantidad de Alimento"
-          name="cantidad_alimento"
-          value={formData.cantidad_alimento}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Temperatura (°C)"
-          name="temperatura"
-          value={formData.temperatura}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="pH"
-          name="ph"
-          value={formData.ph}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-          Agregar Recomendación
-        </Button>
-        {success && <Alert severity="success" sx={{ mt: 2 }}>¡Recomendación agregada con éxito!</Alert>}
-        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+
+      <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+        {fishData.length === 0 ? (
+          <Typography variant="body1" color="textSecondary">
+            No hay perfiles de peces disponibles.
+          </Typography>
+        ) : (
+          fishData.map((fish) => (
+            <Card
+              key={fish.id_especie}
+              sx={{
+                width: '30%',
+                marginTop: '2rem',
+                marginBottom: 2,
+                backgroundColor: fish.status === 'activo' ? '#4caf50' : 'white',
+                cursor: 'pointer',
+                transition: 'background-color 0.3s',
+                borderRadius: '8px',
+                boxShadow: 5,
+                '&:hover': { transform: 'scale(1.05)' },
+              }}
+            >
+              <CardMedia
+                component="img"
+                height="100"
+                image={Logo}
+                alt={`Imagen de ${fish.nombre_comun}`}
+              />
+              <CardContent>
+                <Typography variant="h6" component="div">
+                  {fish.nombre_comun}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Edad: {fish.edad} meses
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Tamaño: {fish.tamaño}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Peso: {fish.peso}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Habitat: {fish.habitat}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Estatus: {fish.status === 'activo' ? 'Activo' : 'Inactivo'}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <IconButton
+                  size="small"
+                  color="secondary"
+                  onClick={() => handleDeleteFish(fish.id_especie)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </CardActions>
+            </Card>
+          ))
+        )}
       </Box>
+
+      <ToastContainer />
     </Container>
   );
 };
 
-export default AddRecomendation;
+export default FishProfiles;

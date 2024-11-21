@@ -8,8 +8,9 @@ import Tabla from '../Tabla/Tabla';
 
 const Inicio = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider  theme={theme}>
       <Box sx={{ 
+      
         display: 'flex', 
         flexDirection: 'column',
         backgroundColor: 'background.default', 
@@ -28,11 +29,11 @@ const Inicio = () => {
             backgroundColor: 'white',
           }}
         >
-          <Box  justifyContent= 'center' sx={{ flexGrow: 1, display: 'flex', padding: 2 }}>
+          <Box   justifyContent= 'center' sx={{ flexGrow: 1,  marginTop:'70px', display: 'flex', padding: 2 }}>
             <DonutChart /> {/* DonutChart al lado izquierdo */}
           </Box>
           <Box justifyContent='center' sx={{   display: 'flex',  padding: 2 }}>
-            <Clock />
+           
           </Box>
         </Box>
 

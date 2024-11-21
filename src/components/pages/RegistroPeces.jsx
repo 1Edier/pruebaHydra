@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom'; // Importar useNavigate
 import Logo from '../../assets/pez1-removebg-preview.png';
 import axios from 'axios';
 
@@ -26,7 +27,8 @@ const FishRegistrationForm = () => {
   const fishOptions = ['Tilapia', 'Trucha', 'Salmon', 'Pez gato', 'Otro'];
   const habitatOptions = ['Río', 'Lago', 'Acuario', 'Océano', 'Otro'];
 
-  // Fetching fish data on component mount
+  const navigate = useNavigate(); // Inicializar navigate
+
   useEffect(() => {
     const fetchFishData = async () => {
       try {
@@ -38,6 +40,7 @@ const FishRegistrationForm = () => {
     };
     fetchFishData();
   }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -61,61 +64,56 @@ const FishRegistrationForm = () => {
     const finalHabitat = habitat === 'Otro' ? customHabitat : habitat;
 
     const newFish = {
-        nombre_comun: finalNombreComun,
-        nombre_cientifico: nombreCientifico,
-        edad,
-        tamaño: tamano,
-        peso,
-        habitat: finalHabitat,
+      nombre_comun: finalNombreComun,
+      nombre_cientifico: nombreCientifico,
+      edad,
+      tamaño: tamano,
+      peso,
+      habitat: finalHabitat,
     };
 
     try {
-        // Registrar la nueva especie
-        const response = await axios.post('http://localhost:4000/especies', newFish);
-        const idEspecie = response.data.especie.id;
+      const response = await axios.post('http://localhost:4000/especies', newFish);
+      const idEspecie = response.data.especie.id;
 
-        // Obtener el ID del usuario desde el localStorage
-        const idUsuario = localStorage.getItem("userId");
-        localStorage.setItem("IdEspecie",idEspecie);
-      
+      const idUsuario = localStorage.getItem('userId');
+      localStorage.setItem('IdEspecie', idEspecie);
 
-        // Intentar asignar o actualizar la especie para el usuario
-        const assignResponse = await axios.post('http://localhost:4000/especies_user', {
-            idUsuario,
-            idEspecie,
-        });
+      await axios.post('http://localhost:4000/especies_user', {
+        idUsuario,
+        idEspecie,
+      });
 
-        toast.success('Registro o actualización de especie exitosa', {
-            position: 'top-right',
-            autoClose: 4000,
-        });
+      toast.success('Registro o actualización de especie exitosa', {
+        position: 'top-right',
+        autoClose: 4000,
+      });
 
-        // Actualizar la lista de especies
-        setFishData([...fishData, newFish]);
+      setFishData([...fishData, newFish]);
 
-        // Reiniciar los campos del formulario
-        setNombreComun('');
-        setCustomNombreComun('');
-        setNombreCientifico('');
-        setEdad('');
-        setTamano('');
-        setPeso('');
-        setHabitat('');
-        setCustomHabitat('');
+      setNombreComun('');
+      setCustomNombreComun('');
+      setNombreCientifico('');
+      setEdad('');
+      setTamano('');
+      setPeso('');
+      setHabitat('');
+      setCustomHabitat('');
+
+      navigate('/Recomendacion'); // Redirigir al usuario a la ruta "/Perfiles"
     } catch (error) {
-        toast.error('Error al registrar la especie o asignarla al usuario.', {
-            position: 'top-right',
-        });
-        console.error('Error details:', error.response ? error.response.data : error.message);
+      toast.error('Error al registrar la especie o asignarla al usuario.', {
+        position: 'top-right',
+      });
+      console.error('Error details:', error.response ? error.response.data : error.message);
     }
-};
+  };
 
-
-  const validateText = (text) => /^[a-zA-Z\s]*$/.test(text); // Solo letras y espacios
-  const validateNumber = (num) => /^\d*$/.test(num); // Solo números
+  const validateText = (text) => /^[a-zA-Z\s]*$/.test(text);
+  const validateNumber = (num) => /^\d*$/.test(num);
 
   return (
-    <Container display="flex" justifyContent="center" alignItems="center" maxWidth="sm" style={{ marginTop: '6rem' }}>
+    <Container display="flex" justifyContent="center" alignItems="center" maxWidth="sm" style={{ marginTop: '15rem' }}>
       <Box
         border={2}
         borderColor="grey.300"
@@ -300,7 +298,28 @@ const FishRegistrationForm = () => {
               value={tamano}
               onChange={(e) => validateNumber(e.target.value) && setTamano(e.target.value)}
               required
-              
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el color del borde a negro
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el borde al pasar el cursor
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el borde cuando el campo está enfocado
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  color: 'black', // Cambiar color del texto a negro
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#7a7c7e', // Cambiar color del label a negro
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#7a7c7e', // Asegurar que el label enfocado también sea negro
+                },
+              }}
             />
           </Box>
           <Box mb={2}>
@@ -312,6 +331,28 @@ const FishRegistrationForm = () => {
               value={peso}
               onChange={(e) => validateNumber(e.target.value) && setPeso(e.target.value)}
               required
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el color del borde a negro
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el borde al pasar el cursor
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el borde cuando el campo está enfocado
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  color: 'black', // Cambiar color del texto a negro
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#7a7c7e', // Cambiar color del label a negro
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#7a7c7e', // Asegurar que el label enfocado también sea negro
+                },
+              }}
             />
           </Box>
           <Box mb={2}>
@@ -323,6 +364,28 @@ const FishRegistrationForm = () => {
               value={habitat}
               onChange={(e) => setHabitat(e.target.value)}
               required
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el color del borde a negro
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el borde al pasar el cursor
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#7a7c7e', // Cambiar el borde cuando el campo está enfocado
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  color: 'black', // Cambiar color del texto a negro
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#7a7c7e', // Cambiar color del label a negro
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#7a7c7e', // Asegurar que el label enfocado también sea negro
+                },
+              }}
             >
               {habitatOptions.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -340,6 +403,28 @@ const FishRegistrationForm = () => {
                 value={customHabitat}
                 onChange={(e) => validateText(e.target.value) && setCustomHabitat(e.target.value)}
                 required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#7a7c7e', // Cambiar el color del borde a negro
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#7a7c7e', // Cambiar el borde al pasar el cursor
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#7a7c7e', // Cambiar el borde cuando el campo está enfocado
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    color: 'black', // Cambiar color del texto a negro
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#7a7c7e', // Cambiar color del label a negro
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#7a7c7e', // Asegurar que el label enfocado también sea negro
+                  },
+                }}
               />
             </Box>
           )}
@@ -347,12 +432,6 @@ const FishRegistrationForm = () => {
             Registrar
           </Button>
         </form>
-
-        <Box mt={4}>
-          <Typography color="black" variant="h6" gutterBottom>
-            Registros de Especies
-          </Typography>
-        </Box>
 
         <ToastContainer />
       </Box>

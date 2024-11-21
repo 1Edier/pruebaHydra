@@ -13,7 +13,7 @@ const scatterData = [
 
 function TemperatureWaterLevelGraph() {
   return (
-    <Paper sx={{ padding: 2, borderRadius: 2, boxShadow: 3 }}>
+    <Paper sx={{marginTop:'60px', padding: 2, borderRadius: 2, boxShadow: 3 }}>
       <Typography variant="h6" gutterBottom>
         Relación entre Temperatura y Nivel de Agua
       </Typography>
