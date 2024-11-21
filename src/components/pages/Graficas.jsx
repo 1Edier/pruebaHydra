@@ -15,7 +15,7 @@ function Graficas() {
         <PHChangeGraph />
       </Box>
       <DeviationBoxPlot />
-      <CriticalValuesPie />
+  
     </Container>
   );
 }

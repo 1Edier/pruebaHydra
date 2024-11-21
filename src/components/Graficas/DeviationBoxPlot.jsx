@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Cookies from "js-cookie";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Paper, Typography } from '@mui/material';
 
@@ -12,7 +13,12 @@ function PHGraph() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/datos/getdatos'); // Llamada al backend
+        const token = Cookies.get("token");
+        const response = await axios.get('http://54.225.86.156:4000/datos/getdatos', {
+          headers: {
+              Authorization: `Bearer ${token}`, // Correcto formato
+          },
+      }); // Llamada al backend
 
         // Procesar los datos para adaptarlos al formato esperado
         const formattedData = response.data.map((item, index) => ({

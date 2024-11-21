@@ -19,9 +19,9 @@ export default function App() {
       <Route path="/" element={<Login />} />
       <Route
         element={
-          <ProtectedRoute>
+          
             <AdminLayout />
-          </ProtectedRoute>
+          
         }
       >
         <Route path="/Home" element={<Inicio />} />

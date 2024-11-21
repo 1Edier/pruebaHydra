@@ -7,6 +7,7 @@ import {
   Box,
   MenuItem,
 } from '@mui/material';
+import Cookies from "js-cookie";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom'; // Importar useNavigate
@@ -32,7 +33,12 @@ const FishRegistrationForm = () => {
   useEffect(() => {
     const fetchFishData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/especies');
+        const token = Cookies.get("token");
+        const response = await axios.get('http://54.225.86.156:4000/especies', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Correcto formato
+          },
+        });
         setFishData(response.data);
       } catch (error) {
         toast.error('Error al cargar los registros de especies.', { position: 'top-right' });
@@ -73,16 +79,33 @@ const FishRegistrationForm = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:4000/especies', newFish);
+      const token = Cookies.get("token");
+
+      // Registrar la especie
+      const response = await axios.post(
+        'http://54.225.86.156:4000/especies',
+        newFish,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Correcto formato
+          },
+        }
+      );
       const idEspecie = response.data.especie.id;
 
       const idUsuario = localStorage.getItem('userId');
       localStorage.setItem('IdEspecie', idEspecie);
 
-      await axios.post('http://localhost:4000/especies_user', {
-        idUsuario,
-        idEspecie,
-      });
+      // Asignar especie al usuario
+      await axios.post(
+        'http://54.225.86.156:4000/especies_user',
+        { idUsuario, idEspecie }, // Datos como cuerpo de la solicitud
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Correcto formato
+          },
+        }
+      );
 
       toast.success('Registro o actualización de especie exitosa', {
         position: 'top-right',
@@ -91,6 +114,7 @@ const FishRegistrationForm = () => {
 
       setFishData([...fishData, newFish]);
 
+      // Resetear los campos
       setNombreComun('');
       setCustomNombreComun('');
       setNombreCientifico('');
@@ -100,7 +124,8 @@ const FishRegistrationForm = () => {
       setHabitat('');
       setCustomHabitat('');
 
-      navigate('/Recomendacion'); // Redirigir al usuario a la ruta "/Perfiles"
+      // Redirigir al usuario
+      navigate('/Recomendacion');
     } catch (error) {
       toast.error('Error al registrar la especie o asignarla al usuario.', {
         position: 'top-right',

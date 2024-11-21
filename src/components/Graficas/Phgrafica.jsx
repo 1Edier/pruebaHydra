@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Container, Typography, Paper, Button } from '@mui/material';
-
+import Cookies from "js-cookie";
 const TemperatureChart = () => {
   const [data, setData] = useState([]); // Todos los datos obtenidos
   const [selectedTank, setSelectedTank] = useState(0); // Índice del estanque seleccionado
@@ -12,7 +12,12 @@ const TemperatureChart = () => {
     // Hacer la solicitud a la API
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/datos/getdatos');
+        const token = Cookies.get("token");
+        const response = await axios.get('http://54.225.86.156:4000/datos/getdatos', {
+          headers: {
+              Authorization: `Bearer ${token}`, // Correcto formato
+          },
+      });
         const fetchedData = response.data.map((item, index) => ({
           id: index + 1, // Suponiendo que los estanques están numerados
           temperature: item.temperatura_agua, // Ajustar según el nombre exacto de la columna
