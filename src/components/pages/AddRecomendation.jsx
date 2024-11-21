@@ -59,7 +59,7 @@ const AddRecomendation = () => {
                       borderColor: '#7a7c7e', // Cambiar el color del borde a negro
                     },
                     '&:hover fieldset': {
-                      borderColor: '#7a7c7e', // Cambiar el borde al pasar el cursor
+                      borderColor: '#7a7c7egit', // Cambiar el borde al pasar el cursor
                     },
                     '&.Mui-focused fieldset': {
                       borderColor: '#7a7c7e', // Cambiar el borde cuando el campo está enfocado
